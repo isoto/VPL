@@ -1,0 +1,49 @@
+<table border="0" cellpadding="0" cellspacing="0" class="agenda">
+<ul word="A">
+<li id="ARG" value="-38.416097,-63.616672" zoom="" href="hdrstats.undp.org/es/paises/perfiles/ARG.html" name="Argentina"/>
+</ul>
+<ul word="B">
+<li id="BOL" value="-16.290154,-63.588653" zoom="" href="hdrstats.undp.org/es/paises/perfiles/BOL.html" name="Bolivia"/>
+<li id="BRA" value="-14.235004,-51.92528" zoom="" href="hdrstats.undp.org/es/paises/perfiles/BRA.html" name="Brasil"/>
+</ul>
+<ul word="C">
+<li id="CHL" value="-35.675147,-71.542969" zoom="" href="hdrstats.undp.org/es/paises/perfiles/CHL.html" name="Chile"/>
+<li id="COL" value="4.570868,-74.297333" zoom="" href="hdrstats.undp.org/es/paises/perfiles/COL.html" name="Colombia"/>
+<li id="CRI" value="9.748917,-83.753428" zoom="" href="hdrstats.undp.org/es/paises/perfiles/CRI.html" name="Costa Rica"/>
+<li id="CUB" value="21.521757,-77.781167" zoom="" href="hdrstats.undp.org/es/paises/perfiles/CUB.html" name="Cuba"/>
+</ul>
+<ul word="E">
+<li id="ECU" value="-1.831239,-78.183406" zoom="" href="hdrstats.undp.org/es/paises/perfiles/ECU.html" name="Ecuador"/>
+<li id="SLV" value="13.794185, -88.89653" zoom="" href="hdrstats.undp.org/es/paises/perfiles/SLV.html" name="El Salvador"/>
+</ul>
+<ul word="G">
+<li id="GTM" value="15.783471,-90.230759" zoom="" href="hdrstats.undp.org/es/paises/perfiles/GTM.html" name="Guatemala"/>
+</ul>
+<ul word="H">
+<li id="HTI" value="18.971187,-72.285215" zoom="" href="hdrstats.undp.org/es/paises/perfiles/HTI.html" name="Haiti"/>
+<li id="HND" value="15.199999, -86.241905" zoom="" href="hdrstats.undp.org/es/paises/perfiles/HND.html" name="Honduras"/>
+</ul>
+<ul word="J">
+<li id="JAM" value="18.109581, -77.297508" zoom="" href="hdrstats.undp.org/es/paises/perfiles/JAM.html" name="Jamaica"/>
+</ul>
+<ul word="M">
+<li id="MEX" value="23.634501, -102.552784" zoom="" href="hdrstats.undp.org/es/paises/perfiles/MEX.html" name="Mexico"/>
+</ul>
+<ul word="P">
+<li id="PAN" value="8.537981, -80.782127" zoom="" href="hdrstats.undp.org/es/paises/perfiles/PAN.html" name="Panama"/>
+<li id="PRY" value="-23.442503, -58.443832" zoom="" href="hdrstats.undp.org/es/paises/perfiles/PRY.html" name="Paraguay"/>
+<li id="PER" value="-9.189967, -75.015152" zoom="" href="hdrstats.undp.org/es/paises/perfiles/PER.html" name="Peru"/>
+</ul>
+<ul word="S">
+<li id="SUR" value="3.919305, -56.027783" zoom="" href="hdrstats.undp.org/es/paises/perfiles/SUR.html" name="Suriname"/>
+</ul>
+<ul word="T">
+<li id="TTO" value="10.691803, -61.222503" zoom="" href="hdrstats.undp.org/es/paises/perfiles/TTO.html" name="Trinidad and Tobago"/>
+</ul>
+<ul word="U">
+<li id="URY" value="-32.522779, -55.765835" zoom="" href="hdrstats.undp.org/es/paises/perfiles/URY.html" name="Uruguay"/>
+</ul>
+<ul word="V">
+<li id="VEN" value="6.42375, -66.58973" zoom="" href="hdrstats.undp.org/es/paises/perfiles/VEN.html" name="Venezuela"/>
+</ul>
+</table>

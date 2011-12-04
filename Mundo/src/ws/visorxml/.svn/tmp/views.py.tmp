@@ -1,0 +1,48 @@
+# Create your views here.
+<<<<<<< .mine
+import urllib
+from xml.dom import minidom
+
+XML_URL = 'http://www.fao.org/countryprofiles/geoinfo/ws/countryStatistics/HDI/'
+
+
+def leerPaises(archivo):
+    
+
+def obtenerTodosHID(paises, idioma):
+    
+    for pais in paises:        
+    
+        url = XML_URL % pais % '/' % idioma 
+        dom = minidom.parse(urllib.urlopen(url))
+        forecasts = []
+        for node in dom.getElementsByTagName('forecast'):
+            forecasts.append({
+                              'date': node.getAttribute('date'),
+                              'low': node.getAttribute('low'),
+                              'high': node.getAttribute('high'),
+                              'condition': node.getAttribute('text')
+                              })
+            ycondition = dom.getElementsByTagName('condition')[0]
+    
+    
+        return {
+        'current_condition': ycondition.getAttribute('text'),
+        'current_temp': ycondition.getAttribute('temp'),
+        'forecasts': forecasts,
+        'title': dom.getElementsByTagName('title')[0].firstChild.data
+    }=======
+from xml.dom import minidom
+from django.http import HttpResponse
+import sys
+
+
+def LeerXML(self):
+    dom = minidom.parse("/home/ignacio/workspace/DatosVisorPublico/DatosVisorPublico/visorxml/tablapaises.xml")
+    for node in dom.getElementsByTagName('li'):
+        print node.getAttribute('id')
+        print node.getAttribute('name')
+        print node.getAttribute('value')
+    return HttpResponse("aloha")
+        
+ >>>>>>> .r581
