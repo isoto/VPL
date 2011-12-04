@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" creationComplete="init()"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:maps="com.google.maps.*" creationPolicy="all"
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<fx:Declarations>
+		<mx:HTTPService id="http_service1" useProxy="false" result="httpResult(event)" fault="httpFault(event)" resultFormat="text"/>
+		<mx:HTTPService id="http_webservice" useProxy="false" result="httpResultWeb(event)" fault="httpFault(event)" resultFormat="text"/>
+		
+		<mx:HTTPService id="http_webservice_hdi" useProxy="false" result="httpResultHDI(event)" fault="httpFault(event)" resultFormat="text"/>
+		<mx:HTTPService id="http_webservice_pib" useProxy="false" result="httpResultPIB(event)" fault="httpFault(event)" resultFormat="text"/>
+		
+		<mx:WebService id="webService" wsdl="{wsdl}" showBusyCursor="true">
+			<mx:operation name="GetHDI"
+						  resultFormat="e4x"
+						  result="callResultHandler(event);"
+						  fault="callFaultHandler(event);" />
+		</mx:WebService>
+	</fx:Declarations>
+	<mx:Panel width="100%" height="100%" title="Visor Latinoamericano">
+		<mx:HBox width="100%" height="100%" horizontalAlign="center">
+			<maps:Map id="map" doubleClickEnabled="true"
+					  sensor="false" key="ABQIAAAAf_nMs8MznuWTjCxh2uP32RSmsPk2b2UOnOfCTD4Kw0J8PgM7gBSwlDukXDQg1vOkscDTYDwe99LOXQ"
+					  mapevent_mapready="onMapReady(event)"
+					  width="50%" height="100%"/>
+			<mx:Canvas id="myCanvas1" width="50%" height="100%">
+				<s:Label x="6" y="39" text="País:" width="87"/>
+				<s:Label x="7" y="69" text="HDI:"/>
+				<s:Label x="61" y="39" id="txt_country" width="120"/>
+				<s:Label x="61" y="67" id="txt_hdi" width="120"/>
+				<s:Label x="7" y="94" text="Año HDI:"/>
+				<s:Label x="61" y="91" id="txt_anio" width="120"/>
+				<mx:LinkButton x="227" y="37" label="Fuente HDI" id="lnk_fuente_hdi" click="click_linkHDI()"/>
+				<mx:LinkButton x="227" y="55" label="Fuente FAO" id="lnk_fuente_fao" click="click_linkFAO()"/>
+				<mx:LinkButton x="227" y="75" label="Fuente PIB" id="lnk_fuente_pib" click="click_linkPIB()"/>
+				<mx:Image id="img_flag" source="{flag}" width="32" x="10" y="0"/>
+				<mx:TabNavigator width="100%" x="0" y="210" height="302">
+					<mx:VBox label="HDI">
+						<s:Label text="Índice de Desarrollo Humano"/>
+						<s:Label text="Cargando datos...." id="carg_HDI"/>
+						<mx:BarChart id="myChartHDI" showDataTips="true" height="700" 
+									 doubleClickEnabled="true" width="100%" barWidthRatio="0.5">
+							<mx:verticalAxis>
+								<mx:CategoryAxis categoryField="@name" id="cat" dataProvider="{providerXmlHDI}" title="Paises"/>
+							</mx:verticalAxis>
+							<mx:series>
+								<mx:BarSet type="clustered" id="barra"
+										   selectable="true">
+									<mx:BarSet type="stacked" id="bar">
+										<mx:BarSeries id="series1" selectable="true"
+													  xField="@value" yField="@name"
+													  displayName="HDI"/>
+									</mx:BarSet>
+								</mx:BarSet>
+							</mx:series>
+						</mx:BarChart>
+					</mx:VBox>
+					<mx:VBox label="PIB">
+						<s:Label text="Millones de dollares"/>
+						<s:Label text="Cargando datos...." id="carg_PIB"/>
+						<mx:BarChart id="myChartPIB" showDataTips="true" height="700" 
+									 doubleClickEnabled="true" width="100%" barWidthRatio="0.5">
+							<mx:verticalAxis>
+								<mx:CategoryAxis categoryField="@name" id="cat2" dataProvider="{providerXmlPIB}" title="Paises"/>
+							</mx:verticalAxis>
+							<mx:series>
+								<mx:BarSet type="clustered" id="barra2"
+										   selectable="true">
+									<mx:BarSet type="stacked" id="bar2">
+										<mx:BarSeries id="series2" selectable="true"
+													  xField="@value" yField="@name"
+													  displayName="HDI"/>
+									</mx:BarSet>
+								</mx:BarSet>
+							</mx:series>
+						</mx:BarChart>
+					</mx:VBox>
+				</mx:TabNavigator>
+			</mx:Canvas>
+		</mx:HBox>
+		<!-- 200.13.0.65 key ABQIAAAAf_nMs8MznuWTjCxh2uP32RT0URvlSzPzzk7nyE42fQB6S_sKlxQeP1flBLaCBj3SrYfSbUIMLq5Usw -->
+		<!-- londres.ceisufro.cl ABQIAAAAf_nMs8MznuWTjCxh2uP32RSmsPk2b2UOnOfCTD4Kw0J8PgM7gBSwlDukXDQg1vOkscDTYDwe99LOXQ -->
+	</mx:Panel>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.google.maps.*;
+			import com.google.maps.InfoWindowOptions;
+			import com.google.maps.LatLng;
+			import com.google.maps.Map;
+			import com.google.maps.MapEvent;
+			import com.google.maps.MapMouseEvent;
+			import com.google.maps.MapType;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.overlays.Marker;
+			import com.google.maps.overlays.MarkerOptions;
+			import com.google.maps.services.ClientGeocoder;
+			import com.google.maps.services.ClientGeocoderOptions;
+			import com.google.maps.services.GeocodingEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			private var XmlPaises:XML;
+			private var XmlListPaises:XMLListCollection;
+			private var acMarkers:ArrayCollection = new ArrayCollection();
+			private var countryStr:String;
+			
+			private var date:Date = new Date();
+			private var href:String;
+			private var idPais:String;
+			[Bindable] private var flag:String;
+			[Bindable]
+			private var wsdl:String;
+			
+			[Bindable]
+			private var providerXmlHDI:XMLListCollection;
+			
+			[Bindable]
+			private var providerXmlPIB:XMLListCollection;
+			
+			private function init():void{
+				carg_PIB.visible = true;
+				carg_HDI.visible = true;
+				viewLink('off');
+				setView('map');
+				this.http_service1.url="xml/Tabla.xml";
+				this.http_service1.send();
+				getData();
+			}
+			
+			private function getData():void{
+				this.http_webservice_pib.url = "http://200.13.4.220:8080/GDP/es";
+				this.http_webservice_pib.send();
+				
+				this.http_webservice_hdi.url = "http://200.13.4.220:8080/HDI/es";
+				this.http_webservice_hdi.send();
+			}
+			
+			private function httpResultHDI(event:ResultEvent):void{
+				var XmlHDICountrys:XML = new XML(event.result);
+				
+				providerXmlHDI = new XMLListCollection(XmlHDICountrys.Pais);
+				/*trace("*****************************************");
+				trace(providerXmlHDI.toXMLString());
+				trace("*****************************************");*/
+				this.myChartHDI.dataProvider = providerXmlHDI;
+				carg_PIB.visible = false;
+				carg_HDI.visible = false;
+			}
+			
+			private function httpResultPIB(event:ResultEvent):void{
+				var XmlPIBCountrys:XML = new XML(event.result);
+				providerXmlPIB = new XMLListCollection(XmlPIBCountrys.Pais);
+				trace(providerXmlPIB.toXMLString());
+				this.myChartPIB.dataProvider = providerXmlPIB;
+				carg_PIB.visible = false;
+				carg_HDI.visible = false;
+			}
+			
+			private function setView(state:String):void{
+				switch(state){
+					case 'map':
+						this.map.percentWidth = 75;
+						//this.myCanvas1.percentWidth = 25;
+						//this.myCanvas2.percentWidth = 0;
+						break;
+					case 'chart':
+						this.map.percentWidth = 50;
+						//this.myCanvas1.percentWidth = 25;
+						//this.myCanvas2.percentWidth = 25;
+						break;
+				}
+			}
+			
+			private function click_linkHDI():void{
+				navigateToURL(new URLRequest("http://"+this.href),"_blank");
+			}
+			
+			private function viewLink(state:String):void{
+				switch(state){
+					case 'on':
+						this.lnk_fuente_hdi.visible = true;
+						this.lnk_fuente_fao.visible = true;
+						this.lnk_fuente_pib.visible = true;
+					break;
+					case 'off':
+						this.lnk_fuente_hdi.visible = false;
+						this.lnk_fuente_fao.visible = false;
+						this.lnk_fuente_pib.visible = false;
+					break;
+				}
+			}
+			
+			private function click_linkFAO():void{
+				navigateToURL(new URLRequest("http://www.fao.org/countries/55528/es/"+this.idPais+"/"),"_blank");
+			}
+			
+			private function click_linkPIB():void{
+				navigateToURL(new URLRequest("http://datos.bancomundial.org/pais/"+this.countryStr.toLowerCase()),"_blank");
+			}
+			
+			private function searchWebservice(ID:String, country:String,href_:String):void{
+				//flag = "http://hdrstats.undp.org/images/flags/"+ID+".GIF";
+				flag = "http://hdr.undp.org//external/flags/"+ID+".gif";
+				trace("flag = "+flag);
+				this.idPais = ID.toUpperCase();
+				this.href = href_;
+				viewLink('on');
+				this.countryStr = country;
+				this.http_webservice.url="http://www.fao.org/countryprofiles/geoinfo/ws/countryStatistics/HDI/"+ID+"/ES";
+				this.http_webservice.send();
+				this.wsdl = "http://www.fao.org/countryprofiles/geoinfo/ws/countryStatistics/HDI/"+ID+"/ES";
+				webService.GetHDI();
+				//img_flag.source = "http://hdrstats.undp.org/images/flags/"+ID+"gif";
+			}
+			
+			private function callFaultHandler(error:FaultEvent):void {
+				trace("Error: " + error.fault.toString());
+			}
+			
+			private function callResultHandler(event:ResultEvent):void {
+				trace("Entro");
+				var respuesta:String = event.target.lastResult.toString();		
+				var XMLresult:XML = new XML(respuesta);
+				trace(XMLresult.toXMLString());					
+			}
+			
+			private function httpResultWeb(event:ResultEvent):void{
+				var XmlHDI:XML = new XML(event.result);
+				
+				if(XmlHDI.HDI.Total !=""){
+					this.txt_hdi.text = XmlHDI.HDI.Total;
+					this.txt_anio.text = XmlHDI.HDI.Year;
+					
+					setView('chart');
+				}else{
+					this.txt_hdi.text = "No se encontro dato.";
+				}
+				this.txt_country.text = this.countryStr;
+			}
+			
+			private function httpFault(event:FaultEvent):void
+			{
+				trace("Error: "+event.fault.faultString);
+			}
+			private function httpResult(event:ResultEvent):void{
+				XmlPaises = new XML(event.result);
+				this.XmlListPaises = new XMLListCollection(XmlPaises.ul);
+			}
+			
+			private function onMapReady(event:Event):void {
+				resetMap();
+				var i:int = 0;
+				var largo:int = this.XmlListPaises.length;
+				var XmlPaisesWord:XML = new XML();
+				var XmlListPaisesWord:XMLListCollection = new XMLListCollection();
+				var value:String;
+				var strArr:Array;
+				
+				var index:int;
+				var largoXml:int;
+				for(;i<largo;i++){
+					XmlPaisesWord = new XML(this.XmlListPaises[i].toXMLString());
+					XmlListPaisesWord = new XMLListCollection(XmlPaisesWord.li);
+					index = 0;
+					largoXml = XmlListPaisesWord.length;
+					
+					var value1:Number = new Number();
+					var value2:Number = new Number();
+					for(;index<largoXml;index++){
+						value = XmlListPaisesWord[index].@value;
+						if(value!=""){
+							strArr = value.split(",");
+							value1 = new Number(strArr[0]);
+							value2 = new Number(strArr[1]);
+							//trace("value ====> "+value+" pais: "+XmlListPaisesWord[index].@name+" values: "+value1+" "+value2);
+							addMarks(value1, value2, XmlListPaisesWord[index].@name,XmlListPaisesWord[index].@id,XmlListPaisesWord[index].@href);
+						}else{
+							geoLocalizer(XmlListPaisesWord[index].@name);
+						}
+					}
+				}
+			}
+			private function resetMap():void
+			{
+				map.setCenter(new LatLng(-10, -80), 3);
+				map.addEventListener(MapMouseEvent.CLICK, addMarker);
+				map.enableScrollWheelZoom();
+				map.enableContinuousZoom();
+				map.addControl(new ZoomControl());
+				map.closeInfoWindow();
+			}
+			private function geoLocalizer(Country:String):void{
+				var geocoder:ClientGeocoder = new ClientGeocoder();
+				geocoder.addEventListener(GeocodingEvent.GEOCODING_SUCCESS,localizar);
+				geocoder.addEventListener(
+					GeocodingEvent.GEOCODING_FAILURE,
+					function(event:GeocodingEvent):void {
+						//Alert.show("Geocoding failed");
+						trace("event: "+event);
+					});
+				geocoder.geocode(Country);
+			}
+			
+			private function addMarker(e:MapMouseEvent):void
+			{
+				map.closeInfoWindow();
+			}
+			
+			private function localizar(event:GeocodingEvent):void{
+				var placemarks:Array = event.response.placemarks;
+				if (placemarks.length > 0) {
+					var marker:Marker = new Marker(placemarks[0].point);
+					var label:String = placemarks[0].address;
+					var ID:String = placemarks[0].address;
+					acMarkers.addItem({label: label, marker: marker});
+					marker.addEventListener(MapMouseEvent.CLICK, function(e:Event):void {
+						marker.openInfoWindow(new InfoWindowOptions({content: label}));
+						
+						map.setCenter(placemarks[0].point, 5);
+						map.addEventListener(MapMouseEvent.CLICK, addMarker);
+						map.enableScrollWheelZoom();
+						map.enableContinuousZoom();
+						map.addControl(new ZoomControl());
+
+					});
+					marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, function(e:Event):void {
+						resetMap();
+					});
+					map.addOverlay(marker);
+				}
+			}
+			
+			private function addMarks(value1:Number, value2:Number, country:String,id:String,href:String):void{
+				var marker:Marker = new Marker(new LatLng(value1, value2));
+				var label:String = country;
+				acMarkers.addItem({label: label, marker: marker});
+				marker.addEventListener(MapMouseEvent.CLICK, function(e:Event):void {
+					marker.openInfoWindow(new InfoWindowOptions({content: label}));
+					map.setCenter(new LatLng(value1, value2), 5);
+					map.addEventListener(MapMouseEvent.CLICK, addMarker);
+					map.enableScrollWheelZoom();
+					map.enableContinuousZoom();
+					map.addControl(new ZoomControl());
+					searchWebservice(id,country,href);
+				});
+				marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, function(e:Event):void {
+					resetMap();
+				});
+				map.addOverlay(marker);
+			}
+		]]>
+	</fx:Script>
+</s:Application>
